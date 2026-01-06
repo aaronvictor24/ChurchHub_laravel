@@ -1,80 +1,52 @@
 <x-guest-layout>
 
-    <div class="mb-4">
-        <a href="{{ url('/') }}"
-            class="inline-flex items-center px-3 py-2 text-sm font-medium text-blue-600 
-                  hover:text-blue-800 hover:underline transition">
-            ← Back
-        </a>
+    <div class="sm:mx-auto sm:w-full sm:max-w-sm">
+        <img src="{{ asset('images/logo.png') }}" alt="ChurchHub Logo" class="mx-auto h-12 w-auto rounded-full" />
+        <h2 class="mt-10 text-center text-2xl font-bold tracking-tight text-white">
+            Sign in to your account
+        </h2>
     </div>
 
-    <!-- Logo Section -->
-    <div class="flex justify-center mb-6">
-        <img src="{{ asset('images/logo.png') }}" alt="ChurchHub Logo"
-            class="h-20 w-20 rounded-full object-cover shadow-lg border-4 border-blue-500">
-    </div>
+    <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
 
-    <!-- Title -->
-    <h2 class="text-2xl font-extrabold text-center text-blue-600 dark:text-blue-400 mb-6">
-        Login to ChurchHub
-    </h2>
+        <form method="POST" action="{{ route('login') }}" class="space-y-6">
+            @csrf
 
-    <!-- Show Login Errors -->
-    @if ($errors->any())
-        <div class="mb-4">
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
-                <strong class="font-bold">Whoops!</strong>
-                <span class="block">Invalid email or password.</span>
+            <!-- Email -->
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-100">Email address</label>
+                <div class="mt-2">
+                    <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus
+                        class="block w-full rounded-md bg-white/5 px-3 py-2 text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm" />
+                </div>
+                <x-input-error :messages="$errors->get('loginError')" />
             </div>
-        </div>
-    @endif
 
-    <!-- Form -->
-    <form method="POST" action="{{ route('login') }}" class="space-y-6">
-        @csrf
+            <!-- Password -->
+            <div>
+                <div class="flex items-center justify-between">
+                    <label for="password" class="block text-sm font-medium text-gray-100">Password</label>
 
-        <!-- Email -->
-        <div>
-            <label for="email" class="block text-sm font-semibold text-gray-700 dark:text-gray-200">Email</label>
-            <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus
-                class="mt-2 block w-full rounded-lg border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition" />
-            @error('email')
-                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-            @enderror
-        </div>
+                </div>
+                <div class="mt-2">
+                    <input id="password" type="password" name="password" required
+                        class="block w-full rounded-md bg-white/5 px-3 py-2 text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm" />
+                </div>
+                <x-input-error :messages="$errors->get('loginError')" />
+            </div>
 
-        <!-- Password -->
-        <div>
-            <label for="password" class="block text-sm font-semibold text-gray-700 dark:text-gray-200">Password</label>
-            <input id="password" type="password" name="password" required
-                class="mt-2 block w-full rounded-lg border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition" />
-            @error('password')
-                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-            @enderror
-        </div>
+            <!-- Submit -->
+            <div>
+                <button type="submit"
+                    class="flex w-full justify-center rounded-md bg-indigo-500 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">
+                    Sign in
+                </button>
+            </div>
+        </form>
 
-        <!-- Remember Me -->
-        <div class="flex items-center justify-between">
-            <label for="remember_me" class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                <input id="remember_me" type="checkbox" name="remember"
-                    class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-2 focus:ring-blue-500">
-                <span class="ml-2">Remember me</span>
-            </label>
-
-            @if (Route::has('password.request'))
-                <a href="{{ route('password.request') }}"
-                    class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">
-                    Forgot password?
-                </a>
-            @endif
-        </div>
-
-        <!-- Button -->
-        <div>
-            <button type="submit"
-                class="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-lg shadow-lg hover:from-blue-700 hover:to-indigo-700 transition">
-                Log in
-            </button>
-        </div>
-    </form>
+        <p class="mt-10 text-center text-sm text-gray-400">
+            Not a member?
+            <a href="#" class="font-semibold text-indigo-400 hover:text-indigo-300">Contact your administrator</a>
+        </p>
+    </div>
 </x-guest-layout>

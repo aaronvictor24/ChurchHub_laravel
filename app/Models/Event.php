@@ -16,7 +16,8 @@ class Event extends Model
     protected $fillable = [
         'title',
         'description',
-        'event_date',
+        'start_date',
+        'end_date',
         'start_time',
         'end_time',
         'location',
@@ -24,6 +25,7 @@ class Event extends Model
         'secretary_id',
     ];
 
+    // 🔹 Relationships
     public function church()
     {
         return $this->belongsTo(Church::class, 'church_id', 'church_id');
@@ -39,6 +41,7 @@ class Event extends Model
         return $this->hasMany(EventAttendance::class, 'event_id', 'event_id');
     }
 
+    // 🔹 Mutators
     public function setTitleAttribute($value)
     {
         $this->attributes['title'] = ucwords(strtolower($value));
@@ -49,10 +52,18 @@ class Event extends Model
         $this->attributes['location'] = ucwords(strtolower($value));
     }
 
-    public function getFormattedDateAttribute()
+    // 🔹 Accessors
+    public function getFormattedStartDateAttribute()
     {
-        return $this->event_date
-            ? Carbon::parse($this->event_date)->format('F d, Y')
+        return $this->start_date
+            ? Carbon::parse($this->start_date)->format('F d, Y')
+            : null;
+    }
+
+    public function getFormattedEndDateAttribute()
+    {
+        return $this->end_date
+            ? Carbon::parse($this->end_date)->format('F d, Y')
             : null;
     }
 

@@ -4,33 +4,38 @@ namespace App\Http\Controllers;
 
 use App\Models\Event;
 use App\Models\EventAttendance;
-use App\Models\Member; // if not already imported
-
+use App\Models\Member;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class EventController extends Controller
 {
-    /**
-     * Display a listing of events.
-     */
     public function index()
     {
         $query = Event::query();
 
-        // Filter events for secretary only (if not admin)
+        // Filter events if user is a secretary
         if (Auth::user()->role->name !== 'admin') {
             $query->where('secretary_id', Auth::user()->secretary->secretary_id);
         }
 
         $events = $query->latest()->paginate(10);
 
-        // Event stats
-        $now = \Carbon\Carbon::now();
+        $now = Carbon::now();
+
+        //  Updated to use start_date and end_date
         $totalEvents = $query->count();
-        $upcomingEvents = (clone $query)->whereDate('event_date', '>', $now)->count();
-        $ongoingEvents = (clone $query)->whereDate('event_date', $now->toDateString())->count();
-        $pastEvents = (clone $query)->whereDate('event_date', '<', $now->toDateString())->count();
+        $upcomingEvents = (clone $query)
+            ->whereDate('start_date', '>', $now)
+            ->count();
+        $ongoingEvents = (clone $query)
+            ->whereDate('start_date', '<=', $now)
+            ->whereDate('end_date', '>=', $now)
+            ->count();
+        $pastEvents = (clone $query)
+            ->whereDate('end_date', '<', $now)
+            ->count();
 
         return view('secretary.events.index', compact(
             'events',
@@ -41,24 +46,17 @@ class EventController extends Controller
         ));
     }
 
-
-
-    /**
-     * Show the form for creating a new event.
-     */
     public function create()
     {
         return view('secretary.events.create');
     }
 
-    /**
-     * Store a newly created event in storage.
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
             'title'       => 'required|string|max:255',
-            'event_date'  => 'required|date',
+            'start_date'  => 'required|date',
+            'end_date'    => 'required|date|after_or_equal:start_date',
             'start_time'  => 'nullable|date_format:H:i',
             'end_time'    => 'nullable|date_format:H:i',
             'location'    => 'nullable|string|max:255',
@@ -73,12 +71,9 @@ class EventController extends Controller
         Event::create($validated);
 
         return redirect()->route('secretary.events.index')
-            ->with('success', 'Event created successfully!');
+            ->with('success', ' Event created successfully!');
     }
 
-    /**
-     * Display the specified event.
-     */
     public function show(Event $event)
     {
         $members = $event->church->members()->orderBy('last_name')->get();
@@ -86,14 +81,8 @@ class EventController extends Controller
 
         $totalMembers = $members->count();
 
-        if (count($attendances) === 0) {
-            // No attendance saved yet → keep attended/absent = 0
-            $attendedCount = 0;
-            $absentCount = 0;
-        } else {
-            $attendedCount = collect($attendances)->filter(fn($att) => $att)->count();
-            $absentCount   = $totalMembers - $attendedCount;
-        }
+        $attendedCount = collect($attendances)->filter(fn($att) => $att)->count();
+        $absentCount = $totalMembers - $attendedCount;
 
         return view('secretary.events.show', compact(
             'event',
@@ -105,12 +94,6 @@ class EventController extends Controller
         ));
     }
 
-
-
-
-    /**
-     * Show the form for editing the specified event.
-     */
     public function edit(Event $event)
     {
         if (Auth::user()->role->name !== 'admin' && $event->secretary_id !== Auth::user()->secretary->secretary_id) {
@@ -120,9 +103,6 @@ class EventController extends Controller
         return view('secretary.events.edit', compact('event'));
     }
 
-    /**
-     * Update the specified event in storage.
-     */
     public function update(Request $request, Event $event)
     {
         if (Auth::user()->role->name !== 'admin' && $event->secretary_id !== Auth::user()->secretary->secretary_id) {
@@ -131,7 +111,8 @@ class EventController extends Controller
 
         $validated = $request->validate([
             'title'       => 'required|string|max:255',
-            'event_date'  => 'required|date',
+            'start_date'  => 'required|date',
+            'end_date'    => 'required|date|after_or_equal:start_date',
             'start_time'  => 'nullable|date_format:H:i',
             'end_time'    => 'nullable|date_format:H:i',
             'location'    => 'nullable|string|max:255',
@@ -141,12 +122,9 @@ class EventController extends Controller
         $event->update($validated);
 
         return redirect()->route('secretary.events.index')
-            ->with('success', 'Event updated successfully!');
+            ->with('success', ' Event updated successfully!');
     }
 
-    /**
-     * Remove the specified event from storage.
-     */
     public function destroy(Event $event)
     {
         if (Auth::user()->role->name !== 'admin' && $event->secretary_id !== Auth::user()->secretary->secretary_id) {
@@ -156,24 +134,24 @@ class EventController extends Controller
         $event->delete();
 
         return redirect()->route('secretary.events.index')
-            ->with('success', 'Event deleted successfully.');
+            ->with('success', ' Event deleted successfully.');
     }
 
     public function updateAttendance(Request $request, Event $event)
     {
-        // Prevent saving attendance for future events
-        if (\Carbon\Carbon::parse($event->event_date)->isFuture()) {
-            return redirect()->back()->with('error', '⚠ You cannot save attendance for a pending/upcoming event.');
+        // 🟡 Updated logic: cannot take attendance for future events
+        if (Carbon::parse($event->start_date)->isFuture()) {
+            return redirect()->back()->with('error', '⚠ You cannot save attendance for an upcoming event.');
         }
 
         foreach ($event->church->members as $member) {
-            $attended = isset($request->attended[$member->member_id]) ? true : false;
-            \App\Models\EventAttendance::updateOrCreate(
+            $attended = isset($request->attended[$member->member_id]);
+            EventAttendance::updateOrCreate(
                 ['event_id' => $event->event_id, 'member_id' => $member->member_id],
                 ['attended' => $attended]
             );
         }
 
-        return redirect()->back()->with('success', '✅ Attendance updated!');
+        return redirect()->back()->with('success', ' Attendance updated successfully!');
     }
 }

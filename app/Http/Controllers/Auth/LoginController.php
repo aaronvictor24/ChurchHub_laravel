@@ -10,7 +10,7 @@ class LoginController extends Controller
 {
     public function showLoginForm()
     {
-        return view('auth.login'); // your login blade file
+        return view('auth.login');
     }
 
     public function login(Request $request)
@@ -23,7 +23,6 @@ class LoginController extends Controller
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 
-            // Check role and redirect
             $user = Auth::user();
 
             if ($user->role->name === 'admin') {
@@ -33,12 +32,11 @@ class LoginController extends Controller
             }
 
 
-            // default fallback
             return redirect()->intended('/');
         }
 
         return back()->withErrors([
-            'email' => 'Invalid credentials.',
+            'loginError' => 'Invalid credentials.',
         ]);
     }
 

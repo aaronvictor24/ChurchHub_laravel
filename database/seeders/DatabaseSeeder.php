@@ -2,11 +2,12 @@
 
 namespace Database\Seeders;
 
+use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\Church;
-use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Database\Seeders\MassSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,10 +16,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Call role & admin seeders
+        // ✅ Call essential seeders
         $this->call([
             RoleSeeder::class,
             AdminUserSeeder::class,
+            MassSeeder::class,
         ]);
 
         // ✅ Ensure at least one church exists
@@ -37,7 +39,7 @@ class DatabaseSeeder extends Seeder
                 'email'     => 'secretary@example.com',
                 'password'  => Hash::make('password'),
                 'role_id'   => $secretaryRole->id,
-                'church_id' => $church->id,
+                'church_id' => $church->church_id ?? $church->id, // supports either primary key naming
             ]);
         }
 
@@ -47,7 +49,7 @@ class DatabaseSeeder extends Seeder
                 ['email' => 'test@example.com'],
                 [
                     'name' => 'Test User',
-                    'password' => bcrypt('password'), // add default password
+                    'password' => bcrypt('password'),
                 ]
             );
         }

@@ -12,9 +12,6 @@ use Illuminate\Support\Facades\Auth;
 
 class MemberController extends Controller
 {
-    /**
-     * Display a listing of members.
-     */
     public function index()
     {
         $query = Member::with('church');
@@ -23,28 +20,20 @@ class MemberController extends Controller
             $query->where('secretary_id', Auth::user()->secretary->secretary_id);
         }
 
-
-
-        // ✅ Order by newest first (using primary key or created_at)
         $members = $query->orderBy('member_id', 'desc')->get();
 
         return view('secretary.members.index', compact('members'));
     }
 
-    /**
-     * Show the form for creating a new member.
-     */
     public function create()
     {
-        // No need to pass all churches; the secretary's church is fixed
-        $churchId = Auth::user()->church_id;
+        $secretary = Auth::user()->secretary;
+
+        $churchId = $secretary ? $secretary->church_id : null;
 
         return view('secretary.members.create', compact('churchId'));
     }
 
-    /**
-     * Store a newly created member in storage.
-     */
     public function store(Request $request)
     {
         $secretary = Auth::user();
@@ -98,26 +87,18 @@ class MemberController extends Controller
 
 
 
-    /**
-     * Show the form for editing a member.
-     */
     public function edit(Member $member)
     {
         if (Auth::user()->role->name === 'admin') {
-            // Admin can reassign member to another church
             $churches = Church::all();
             return view('secretary.members.edit', compact('member', 'churches'));
         } else {
-            // Secretary can only view their assigned church
             $church = Auth::user()->church; // assuming User belongsTo Church
             return view('secretary.members.edit', compact('member', 'church'));
         }
     }
 
 
-    /**
-     * Update the specified member in storage.
-     */
     public function update(Request $request, Member $member)
     {
         $validated = $request->validate([
@@ -138,7 +119,6 @@ class MemberController extends Controller
             'contact_number.regex' => 'The contact number must be exactly 11 digits.',
         ]);
 
-        // 🔒 Ensure church_id is always valid
         if (Auth::user()->role->name === 'admin') {
             $validated['church_id'] = $request->church_id; // Admin can change
         } else {
@@ -151,11 +131,6 @@ class MemberController extends Controller
             ->with('success', 'Member updated successfully!');
     }
 
-
-
-    /**
-     * Remove the specified member from storage.
-     */
     public function destroy(Member $member)
     {
         $member->delete();

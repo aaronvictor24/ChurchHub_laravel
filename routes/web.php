@@ -10,6 +10,8 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\Secretary\CalendarController;
 use App\Http\Controllers\Secretary\DashboardController;
+use App\Http\Controllers\Secretary\FinancialController;
+use App\Http\Controllers\Secretary\MassController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -39,7 +41,7 @@ Route::middleware(['auth', 'role:admin'])
             ->name('notifications.read');
 
         Route::get('/members/{member_id}', [MemberController::class, 'show'])
-            ->name('members.show');
+            ->name('admin.members.show');
 
         Route::get('/notifications/{notification}/view-member', [App\Http\Controllers\Admin\NotificationController::class, 'viewMember'])
             ->name('notifications.viewMember');
@@ -58,11 +60,22 @@ Route::middleware(['auth', 'role:secretary'])
         Route::get('/', fn() => redirect()->route('secretary.dashboard'));
         Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
         Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar');
+        Route::get('reports/finance', [FinancialController::class, 'reports'])->name('reports.finance');
+        Route::get('reports/finance/export/excel', [FinancialController::class, 'exportFinanceExcel'])->name('reports.finance.export.excel');
+        Route::get('reports/finance/export/pdf', [FinancialController::class, 'exportFinancePDF'])->name('reports.finance.export.pdf');
         Route::resource('members', App\Http\Controllers\MemberController::class);
         Route::resource('events', EventController::class);
-
         Route::post('events/{event}/attendance', [EventController::class, 'updateAttendance'])
             ->name('events.attendance.update');
+        Route::resource('masses', MassController::class);
+        Route::post('masses/{mass}/attendance', [MassController::class, 'updateAttendance'])
+            ->name('masses.updateAttendance');
+        Route::post('masses/{mass}/offering', [MassController::class, 'storeOffering'])
+            ->name('masses.storeOffering');
+        Route::get('financial/offerings', [FinancialController::class, 'offerings'])
+            ->name('financial.offerings');
+        Route::resource('tithes', \App\Http\Controllers\Secretary\TithesController::class);
+        Route::get('notifications/history', [\App\Http\Controllers\Secretary\NotificationController::class, 'history'])->name('notifications.history');
     });
 
 // 🔹 Profile Routes

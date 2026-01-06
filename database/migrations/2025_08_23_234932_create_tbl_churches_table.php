@@ -15,7 +15,6 @@ return new class extends Migration
             $table->unsignedBigInteger('pastor_id')->nullable();
             $table->timestamps();
 
-            // optional FK to tbl_pastors
             $table->foreign('pastor_id')
                 ->references('id')
                 ->on('tbl_pastors')

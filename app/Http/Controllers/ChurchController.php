@@ -11,9 +11,7 @@ class ChurchController extends Controller
 {
     public function index()
     {
-        // ✅ Order by newest church_id (or created_at) descending
         $churches = Church::orderBy('church_id', 'desc')->get();
-        // or: $churches = Church::latest('church_id')->get();
 
         return view('admin.churches.index', compact('churches'));
     }

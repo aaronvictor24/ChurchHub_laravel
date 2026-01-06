@@ -2,34 +2,35 @@
 
 @section('content')
     <div class="flex justify-between items-center mb-6">
-        <h2 class="text-3xl font-bold text-gray-800">➕ Add New Church</h2>
+        <h2 class="text-3xl font-bold text-gray-100"> Add New Church</h2>
     </div>
 
-    <!-- Form Card -->
-    <div class="bg-white shadow rounded-xl p-6 max-w-4xl mx-auto">
+    <div class="bg-gray-800 text-gray-100 shadow rounded-xl p-8 max-w-4xl mx-auto border border-gray-700">
         <form action="{{ route('admin.churches.store') }}" method="POST" class="space-y-6">
             @csrf
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Church Name -->
                 <div>
-                    <label for="name" class="block text-sm font-medium text-gray-700">Church Name</label>
-                    <input type="text" name="name" id="name" value="{{ old('name') }}" required
-                        class="mt-1 w-full border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
+                    <x-input-label for="name" :value="__('Church Name')" />
+                    <x-text-input id="name" name="name" type="text" :value="old('name')" required
+                        class="mt-1 block w-full" />
+                    <x-input-error :messages="$errors->get('name')" class="mt-2" />
                 </div>
 
                 <!-- Address -->
                 <div>
-                    <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
-                    <input type="text" name="address" id="address" value="{{ old('address') }}" required
-                        class="mt-1 w-full border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
+                    <x-input-label for="address" :value="__('Address')" />
+                    <x-text-input id="address" name="address" type="text" :value="old('address')" required
+                        class="mt-1 block w-full" />
+                    <x-input-error :messages="$errors->get('address')" class="mt-2" />
                 </div>
 
-                <!-- Assigned Pastor (span 2 columns) -->
+                <!-- Assigned Pastor (span 2 cols) -->
                 <div class="md:col-span-2">
-                    <label for="pastor_id" class="block text-sm font-medium text-gray-700">Assigned Pastor</label>
-                    <select name="pastor_id" id="pastor_id"
-                        class="mt-1 w-full border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
+                    <x-input-label for="pastor_id" :value="__('Assigned Pastor')" />
+                    <select id="pastor_id" name="pastor_id"
+                        class="mt-1 block w-full rounded-lg bg-gray-900 text-white border-gray-700 px-3 py-2">
                         <option value="">-- Select Pastor --</option>
                         @foreach ($pastors as $pastor)
                             <option value="{{ $pastor->id }}" {{ old('pastor_id') == $pastor->id ? 'selected' : '' }}>
@@ -37,16 +38,14 @@
                             </option>
                         @endforeach
                     </select>
+                    <x-input-error :messages="$errors->get('pastor_id')" class="mt-2" />
                 </div>
             </div>
 
-            <!-- Buttons -->
-            <div class="flex justify-end gap-4 mt-4">
+            <div class="flex justify-end gap-4 mt-6">
                 <a href="{{ route('admin.churches.index') }}"
-                    class="px-4 py-2 bg-gray-500 text-white rounded-lg shadow hover:bg-gray-600 transition">Cancel</a>
-                <button type="submit"
-                    class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-500 transition">Save
-                    Church</button>
+                    class="px-4 py-2 bg-gray-600 text-white rounded-lg shadow hover:bg-gray-500 transition">Cancel</a>
+                <x-primary-button>Save Church</x-primary-button>
             </div>
         </form>
     </div>

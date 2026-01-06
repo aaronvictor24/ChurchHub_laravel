@@ -8,9 +8,6 @@ use Carbon\Carbon;
 
 class PastorController extends Controller
 {
-    /**
-     * Display a listing of pastors.
-     */
     public function index()
     {
         $pastors = Pastor::where('is_deleted', 0)
@@ -20,18 +17,11 @@ class PastorController extends Controller
         return view('admin.pastors.index', compact('pastors'));
     }
 
-
-    /**
-     * Show the form for creating a new pastor.
-     */
     public function create()
     {
         return view('admin.pastors.create');
     }
 
-    /**
-     * Store a newly created pastor.
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -57,17 +47,12 @@ class PastorController extends Controller
         return redirect()->route('admin.pastors.index')->with('success', 'Pastor added successfully!');
     }
 
-    /**
-     * Show the form for editing a pastor.
-     */
+
     public function edit(Pastor $pastor)
     {
         return view('admin.pastors.edit', compact('pastor'));
     }
 
-    /**
-     * Update the specified pastor.
-     */
     public function update(Request $request, Pastor $pastor)
     {
         $request->validate([
@@ -102,9 +87,7 @@ class PastorController extends Controller
         return redirect()->route('admin.pastors.index')->with('success', 'Pastor updated successfully.');
     }
 
-    /**
-     * Soft delete the specified pastor.
-     */
+
     public function destroy(Pastor $pastor)
     {
         $pastor->update(['is_deleted' => 1]);
