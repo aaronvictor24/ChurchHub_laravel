@@ -25,7 +25,7 @@
                 <input type="date" name="date" class="w-full rounded bg-gray-700 text-white p-2" required>
             </div>
             <div class="mb-4">
-                <label class="block mb-2 font-semibold">Remarks</label>
+                <label class="block mb-2 font-semibold">Prayer Request</label>
                 <input type="text" name="remarks" class="w-full rounded bg-gray-700 text-white p-2">
             </div>
             <button type="submit"

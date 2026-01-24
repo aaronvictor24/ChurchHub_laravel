@@ -7,6 +7,7 @@ use App\Models\Mass;
 use Illuminate\Database\Seeder;
 
 use App\Models\Pastor;
+use Carbon\Carbon;
 
 class MassSeeder extends Seeder
 {
@@ -65,11 +66,14 @@ class MassSeeder extends Seeder
         ];
 
         foreach ($regularMasses as $mass) {
+            // compute the next occurrence date for the configured weekday
+            $nextDate = Carbon::today()->next($mass['day_of_week'])->toDateString();
+
             Mass::create([
                 'church_id' => $church->church_id,
                 'mass_title' => $mass['mass_title'],
                 'mass_type' => 'regular',
-                'mass_date' => now(),
+                'mass_date' => $nextDate,
                 'start_time' => $mass['start_time'],
                 'end_time' => $mass['end_time'],
                 'day_of_week' => $mass['day_of_week'],

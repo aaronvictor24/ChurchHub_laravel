@@ -21,7 +21,7 @@
 
     <!-- Sidebar -->
     <aside
-        class="fixed inset-y-0 left-0 w-64 bg-gray-800 border-r border-gray-700 shadow-lg z-50 transform 
+        class="fixed inset-y-0 left-0 w-64 bg-gray-800 border-r border-gray-700 shadow-lg z-50 transform
                transition-transform duration-300 ease-in-out lg:translate-x-0"
         :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
 
@@ -43,7 +43,7 @@
                 <!-- Navigation -->
                 <nav class="space-y-1">
                     <a href="{{ route('secretary.dashboard') }}"
-                        class="flex items-center px-3 py-2 rounded-md transition 
+                        class="flex items-center px-3 py-2 rounded-md transition
                               {{ request()->routeIs('secretary.dashboard') ? 'bg-gray-700 text-white' : 'hover:bg-gray-700 text-gray-300' }}">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" stroke-width="2"
                             viewBox="0 0 24 24">
@@ -53,7 +53,7 @@
                     </a>
 
                     <a href="{{ route('secretary.members.index') }}"
-                        class="flex items-center px-3 py-2 rounded-md transition 
+                        class="flex items-center px-3 py-2 rounded-md transition
                               {{ request()->routeIs('secretary.members.*') ? 'bg-gray-700 text-white' : 'hover:bg-gray-700 text-gray-300' }}">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" stroke-width="2"
                             viewBox="0 0 24 24">
@@ -153,18 +153,7 @@
                                 class="block px-3 py-2 rounded-md text-sm {{ request()->routeIs('secretary.reports.finance') ? 'bg-gray-700 text-white' : 'hover:bg-gray-700 text-gray-300' }}">
                                 Finance Reports
                             </a>
-                            <a href="{{ route('secretary.notifications.history') }}"
-                                class="block px-3 py-2 rounded-md text-sm hover:bg-gray-700 text-gray-300">
-                                Notification History
-                            </a>
-                            <a href="#"
-                                class="block px-3 py-2 rounded-md text-sm hover:bg-gray-700 text-gray-300">
-                                Weekly
-                            </a>
-                            <a href="#"
-                                class="block px-3 py-2 rounded-md text-sm hover:bg-gray-700 text-gray-300">
-                                Monthly
-                            </a>
+
                         </div>
                     </div>
                 </nav>

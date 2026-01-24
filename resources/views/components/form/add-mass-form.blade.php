@@ -19,7 +19,7 @@
             </div>
 
             <div class="sm:col-span-3">
-                <label class="block text-sm font-medium text-white">Mass Type</label>
+                <label class="block text-sm font-medium text-white">Type</label>
                 <select name="mass_type" id="mass_type" required
                     class="mt-2 block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white
                     outline-1 -outline-offset-1 outline-white/10 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm">

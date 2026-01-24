@@ -14,10 +14,20 @@ class MassController extends Controller
     {
         $churchId = Auth::user()->church_id;
         $today = Carbon::today();
+        $todayName = $today->format('l');
 
-        // Upcoming / active masses
+        // Upcoming / active masses:
+        // include non-recurring masses with mass_date >= today
+        // OR recurring (regular) masses that occur on today's weekday
         $masses = Mass::where('church_id', $churchId)
-            ->whereDate('mass_date', '>=', $today)
+            ->where(function ($q) use ($today) {
+                $q->where(function ($q2) use ($today) {
+                    $q2->where('is_recurring', false)
+                        ->whereDate('mass_date', '>=', $today);
+                })
+                    // include all recurring masses for the church
+                    ->orWhere('is_recurring', true);
+            })
             ->orderBy('mass_date', 'asc')
             ->paginate(10);
 
