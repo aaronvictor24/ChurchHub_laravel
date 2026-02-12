@@ -25,7 +25,7 @@ Route::post('/logout', [AuthLoginController::class, 'logout'])->name('logout');
 
 
 
-// 🔹 Admin 
+// 🔹 Admin
 Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')
     ->name('admin.')
@@ -63,17 +63,20 @@ Route::middleware(['auth', 'role:secretary'])
         Route::get('reports/finance', [FinancialController::class, 'reports'])->name('reports.finance');
         Route::get('reports/finance/export/excel', [FinancialController::class, 'exportFinanceExcel'])->name('reports.finance.export.excel');
         Route::get('reports/finance/export/pdf', [FinancialController::class, 'exportFinancePDF'])->name('reports.finance.export.pdf');
+
         Route::resource('members', App\Http\Controllers\MemberController::class);
         Route::resource('events', EventController::class);
         Route::post('events/{event}/attendance', [EventController::class, 'updateAttendance'])
             ->name('events.attendance.update');
         Route::resource('masses', MassController::class);
+        Route::get('masses/{mass}/print', [MassController::class, 'print'])->name('masses.print');
         Route::post('masses/{mass}/attendance', [MassController::class, 'updateAttendance'])
             ->name('masses.updateAttendance');
         Route::post('masses/{mass}/offering', [MassController::class, 'storeOffering'])
             ->name('masses.storeOffering');
         Route::get('financial/offerings', [FinancialController::class, 'offerings'])
             ->name('financial.offerings');
+        Route::resource('expenses', \App\Http\Controllers\Secretary\ExpensesController::class);
         Route::resource('tithes', \App\Http\Controllers\Secretary\TithesController::class);
         Route::get('notifications/history', [\App\Http\Controllers\Secretary\NotificationController::class, 'history'])->name('notifications.history');
     });

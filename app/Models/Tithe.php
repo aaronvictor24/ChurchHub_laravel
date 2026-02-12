@@ -15,6 +15,8 @@ class Tithe extends Model
     protected $fillable = [
         'church_id',
         'member_id',
+        'is_pledge',
+        'pledger_name',
         'mass_id',
         'amount',
         'date',

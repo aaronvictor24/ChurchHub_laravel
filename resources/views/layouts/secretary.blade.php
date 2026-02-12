@@ -89,7 +89,7 @@
                             </a>
                             <a href="{{ route('secretary.masses.index') }}"
                                 class="block px-3 py-2 rounded-md text-sm {{ request()->routeIs('secretary.masses.index') ? 'bg-gray-700 text-white' : 'hover:bg-gray-700 text-gray-300' }}">
-                                Mass
+                                Servies
                             </a>
                             <a href="{{ route('secretary.calendar') }}"
                                 class="block px-3 py-2 rounded-md text-sm {{ request()->routeIs('secretary.calendar') ? 'bg-gray-700 text-white' : 'hover:bg-gray-700 text-gray-300' }}">
@@ -125,6 +125,10 @@
                             <a href="{{ route('secretary.tithes.index') }}"
                                 class="block px-3 py-2 rounded-md text-sm {{ request()->routeIs('secretary.tithes.*') ? 'bg-gray-700 text-white' : 'hover:bg-gray-700 text-gray-300' }}">
                                 Tithes
+                            </a>
+                            <a href="{{ route('secretary.expenses.index') }}"
+                                class="block px-3 py-2 rounded-md text-sm {{ request()->routeIs('secretary.expenses.*') ? 'bg-gray-700 text-white' : 'hover:bg-gray-700 text-gray-300' }}">
+                                Expenses
                             </a>
                         </div>
                     </div>

@@ -18,6 +18,8 @@ return new class extends Migration
             $table->boolean('attended')->default(false);
             $table->timestamps();
 
+            $table->unique(['mass_id', 'member_id']);
+
             $table->foreign('mass_id')
                 ->references('mass_id')
                 ->on('tbl_masses')

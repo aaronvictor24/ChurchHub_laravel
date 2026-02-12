@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 
 class MemberController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $query = Member::with('church');
 
@@ -20,7 +20,71 @@ class MemberController extends Controller
             $query->where('secretary_id', Auth::user()->secretary->secretary_id);
         }
 
-        $members = $query->orderBy('member_id', 'desc')->get();
+        // Searching
+        if ($q = $request->get('q')) {
+            $query->where(function ($sub) use ($q) {
+                $sub->where('first_name', 'like', "%{$q}%")
+                    ->orWhere('middle_name', 'like', "%{$q}%")
+                    ->orWhere('last_name', 'like', "%{$q}%")
+                    ->orWhere('email', 'like', "%{$q}%")
+                    ->orWhere('contact_number', 'like', "%{$q}%")
+                    ->orWhere('address', 'like', "%{$q}%");
+            });
+        }
+
+        // Filters
+        if ($gender = $request->get('gender')) {
+            if (in_array($gender, ['Male', 'Female'])) {
+                $query->where('gender', $gender);
+            }
+        }
+
+        if ($churchId = $request->get('church_id')) {
+            $query->where('church_id', $churchId);
+        }
+
+        // Age range filter
+        if ($request->get('age_min') !== null) {
+            $min = $request->get('age_min');
+            if (is_numeric($min)) {
+                $max = $request->get('age_max');
+                $minYears = (int)$min;
+                $maxYears = is_numeric($max) ? (int)$max : null;
+                $from = Carbon::now()->subYears($maxYears ?? 150)->endOfDay();
+                $to = Carbon::now()->subYears($minYears)->startOfDay();
+                $query->whereBetween('birth_date', [$from->toDateString(), $to->toDateString()]);
+            }
+        }
+
+        // Sorting
+        $sortField = $request->get('sort_field', 'created_at');
+        $order = $request->get('order', 'desc');
+        $order = $order === 'asc' ? 'asc' : 'desc';
+
+        $allowed = ['created_at', 'this_week', 'this_month', 'last_name'];
+        if (!in_array($sortField, $allowed)) {
+            $sortField = 'created_at';
+        }
+
+        // Handle different sort field logic
+        if ($sortField === 'this_week') {
+            $query->whereBetween('created_at', [
+                Carbon::now()->startOfWeek(),
+                Carbon::now()->endOfWeek()
+            ])->orderBy('created_at', $order);
+        } elseif ($sortField === 'this_month') {
+            $query->whereMonth('created_at', Carbon::now()->month)
+                ->whereYear('created_at', Carbon::now()->year)
+                ->orderBy('created_at', $order);
+        } elseif ($sortField === 'last_name') {
+            $query->orderBy('last_name', $order)->orderBy('first_name', $order);
+        } else {
+            // created_at is default
+            $query->orderBy('created_at', $order);
+        }
+
+        // Pagination
+        $members = $query->paginate(15)->appends($request->query());
 
         return view('secretary.members.index', compact('members'));
     }

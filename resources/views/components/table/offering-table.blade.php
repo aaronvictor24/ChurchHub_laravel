@@ -8,12 +8,14 @@
                 <th class="py-4 px-5 text-left text-base font-semibold text-gray-100">Remarks</th>
                 <th class="py-4 px-5 text-left text-base font-semibold text-gray-100">Encoded By</th>
                 <th class="py-4 px-5 text-left text-base font-semibold text-gray-100">Date Added</th>
+                <th class="py-4 px-5 text-left text-base font-semibold text-gray-100">Actions</th>
             </tr>
         </thead>
 
         <tbody class="divide-y divide-gray-700 bg-gray-800">
             @forelse ($offerings as $offering)
-                <tr class="hover:bg-gray-700/70 transition">
+                <tr class="hover:bg-gray-700/70 transition cursor-pointer"
+                    onclick="window.location='{{ route('secretary.masses.show', $offering->mass->mass_id) }}'">
                     <td class="py-4 px-5 text-base font-medium text-white">{{ $offering->mass->mass_title }}</td>
                     <td class="py-4 px-5 text-base text-gray-200">
                         {{ \Carbon\Carbon::parse($offering->mass->mass_date)->format('F d, Y') }}</td>
@@ -21,10 +23,15 @@
                     <td class="py-4 px-5 text-base text-gray-200">{{ $offering->remarks ?? 'N/A' }}</td>
                     <td class="py-4 px-5 text-base text-gray-200">{{ $offering->encoder->name ?? 'N/A' }}</td>
                     <td class="py-4 px-5 text-base text-gray-200">{{ $offering->created_at->format('F d, Y') }}</td>
+                    <td class="py-4 px-5 text-base text-gray-200">
+                        <a href="{{ route('secretary.masses.show', $offering->mass->mass_id) }}"
+                            onclick="event.stopPropagation();"
+                            class="inline-block mr-2 rounded px-3 py-1 bg-indigo-600 hover:bg-indigo-500 text-white text-sm">View</a>
+                    </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="6" class="text-center text-gray-400 py-5 text-lg">
+                    <td colspan="7" class="text-center text-gray-400 py-5 text-lg">
                         No offerings recorded yet.
                     </td>
                 </tr>

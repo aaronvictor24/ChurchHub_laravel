@@ -24,13 +24,15 @@ class CalendarController extends Controller
         $calendarEvents = [];
 
         foreach ($events as $event) {
-            $endDate = Carbon::parse($event->end_date ?? $event->start_date);
-            $isPast = $endDate->lt($now); // check if already done
+            // Build precise datetimes using times when available; fallback to whole-day range
+            $startDT = Carbon::parse($event->start_date . ' ' . ($event->start_time ?? '00:00:00'));
+            $endDT = Carbon::parse($event->end_date . ' ' . ($event->end_time ?? '23:59:59'));
+            $isPast = $endDT->lt($now); // check if already done based on datetime
 
             $calendarEvents[] = [
                 'title' => $event->title . ($isPast ? ' (Done)' : ''),
-                'start' => $event->start_date,
-                'end'   => $event->end_date ?? $event->start_date,
+                'start' => $startDT->toDateTimeString(),
+                'end'   => $endDT->toDateTimeString(),
                 'url'   => route('secretary.events.show', $event->event_id),
                 'backgroundColor' => $isPast ? '#6b7280' : '#2563eb', // gray if done, blue if upcoming
                 'borderColor' => $isPast ? '#6b7280' : '#2563eb',

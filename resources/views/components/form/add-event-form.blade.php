@@ -1,6 +1,18 @@
 <form action="{{ $action }}" method="POST" class="space-y-12">
     @csrf
 
+    {{-- Display warning message if there's a schedule conflict --}}
+    @if ($errors->any() || session('warning'))
+        <div class="p-4 bg-yellow-900 border border-yellow-700 rounded-lg text-yellow-300 font-semibold">
+            @if (session('warning'))
+                <div>{{ session('warning') }}</div>
+            @endif
+            @foreach ($errors->all() as $error)
+                <div>{{ $error }}</div>
+            @endforeach
+        </div>
+    @endif
+
     <div class="border-b border-white/10 pb-12">
         <h2 class="text-base font-semibold text-white">Event Details</h2>
         <p class="mt-1 text-sm text-gray-400">Please fill out all the event information below.</p>

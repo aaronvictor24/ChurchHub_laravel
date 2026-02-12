@@ -11,6 +11,9 @@ class Expense extends Model
         'church_id',
         'amount',
         'description',
+        'purpose',
+        'requested_by',
+        'released_to',
         'expense_date',
         'created_by',
     ];

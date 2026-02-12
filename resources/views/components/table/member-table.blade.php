@@ -1,18 +1,8 @@
-<section class="bg-gray-800 text-gray-100 p-8 rounded-xl shadow-md">
-    <div class="flex items-center justify-between mb-8">
-        <h2 class="text-2xl font-bold text-white">Members</h2>
+<section class="bg-gray-800 text-gray-100 rounded-xl shadow-md no-print">
 
-        <a href="{{ route('secretary.members.create') }}">
-            <x-primary-button
-                class="bg-blue-600 hover:bg-blue-500 text-white text-base font-semibold px-5 py-2.5 rounded-lg transition">
-                Add New Member
-            </x-primary-button>
-        </a>
-    </div>
-
-    <div class="overflow-x-auto rounded-lg border border-gray-700">
+    <div class="overflow-y-auto max-h-[600px] rounded-lg border border-gray-700">
         <table class="min-w-full divide-y divide-gray-600">
-            <thead class="bg-gray-900/90">
+            <thead class="bg-gray-900/90 sticky top-0">
                 <tr>
                     <th class="py-4 px-5 text-left text-base font-semibold text-gray-100">Name</th>
                     <th class="py-4 px-5 text-left text-base font-semibold text-gray-100">Gender</th>
@@ -45,26 +35,28 @@
                         <td class="py-4 px-5 text-base text-gray-200">{{ $member->address ?? '—' }}</td>
                         <td class="py-4 px-5 text-base text-gray-200">{{ $member->church->name ?? '—' }}</td>
 
-                        <td class="py-4 px-5 text-right flex justify-end gap-3">
-                            <a href="{{ route('secretary.members.edit', $member->member_id) }}">
-                                <x-secondary-button class="bg-yellow-500 hover:bg-yellow-400 text-white">
+                        <td class="py-4 px-5 text-right">
+                            <div class="flex gap-2 justify-end">
+                                <a href="{{ route('secretary.members.edit', $member->member_id) }}"
+                                    class="inline-block px-3 py-1.5 text-sm bg-blue-600 hover:bg-blue-500 text-white rounded-md transition">
                                     Edit
-                                </x-secondary-button>
-                            </a>
-
-                            <form action="{{ route('secretary.members.destroy', $member->member_id) }}" method="POST"
-                                onsubmit="return confirm('Are you sure you want to delete this member?');">
-                                @csrf
-                                @method('DELETE')
-                                <x-danger-button type="submit">
-                                    Delete
-                                </x-danger-button>
-                            </form>
+                                </a>
+                                <form action="{{ route('secretary.members.destroy', $member->member_id) }}"
+                                    method="POST" class="inline-block"
+                                    onsubmit="return confirm('Are you sure you want to delete this member?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit"
+                                        class="px-3 py-1.5 text-sm bg-red-600 hover:bg-red-500 text-white rounded-md transition">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="9" class="text-center text-gray-400 py-5 text-lg">
+                        <td colspan="8" class="text-center text-gray-400 py-5 text-lg">
                             No members found.
                         </td>
                     </tr>
@@ -72,4 +64,19 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Pagination Info & Links -->
+    <div class="mt-6 flex items-center justify-between px-8 pb-8">
+        <div class="text-sm text-gray-400">
+            @if ($members->total() > 0)
+                Showing <span class="font-semibold">{{ $members->firstItem() }}</span> - <span
+                    class="font-semibold">{{ $members->lastItem() }}</span> of <span
+                    class="font-semibold">{{ $members->total() }}</span> members
+            @else
+                No members to display
+            @endif
+        </div>
+        <div class="flex gap-1">
+            {{ $members->links() }}
+        </div>
 </section>

@@ -8,6 +8,9 @@ use App\Models\Tithe;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\FinanceReportExport;
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
 
 class FinancialController extends Controller
 {
@@ -27,7 +30,7 @@ class FinancialController extends Controller
             ->get();
 
         // Use Laravel Excel to export
-        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\FinanceReportExport($tithes, $offerings, $from, $to), 'finance_report.xlsx');
+        return Excel::download(new FinanceReportExport($tithes, $offerings, $from, $to), 'finance_report.xlsx');
     }
 
     public function exportFinancePDF(Request $request)
@@ -45,7 +48,7 @@ class FinancialController extends Controller
             ->whereBetween('created_at', [$from->toDateTimeString(), $to->toDateTimeString()])
             ->get();
 
-        $pdf = \PDF::loadView('secretary.reports.pdf', compact('tithes', 'offerings', 'from', 'to'));
+        $pdf = PDF::loadView('secretary.reports.pdf', compact('tithes', 'offerings', 'from', 'to'));
         return $pdf->download('finance_report.pdf');
     }
     // Removed duplicate method definition
@@ -164,12 +167,51 @@ class FinancialController extends Controller
     {
         $churchId = Auth::user()->church_id;
 
-        $offerings = MassOffering::with(['mass'])
-            ->whereHas('mass', function ($query) use ($churchId) {
-                $query->where('church_id', $churchId);
-            })
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+        $query = MassOffering::with(['mass', 'encoder'])
+            ->whereHas('mass', function ($q) use ($churchId) {
+                $q->where('church_id', $churchId);
+            });
+
+        // Search
+        if (request('q')) {
+            $qTerm = request('q');
+            $query->where(function ($q) use ($qTerm) {
+                $q->where('remarks', 'like', "%{$qTerm}%")
+                    ->orWhereHas('mass', function ($mq) use ($qTerm) {
+                        $mq->where('mass_title', 'like', "%{$qTerm}%");
+                    })
+                    ->orWhereHas('encoder', function ($eq) use ($qTerm) {
+                        $eq->where('name', 'like', "%{$qTerm}%");
+                    });
+            });
+        }
+
+        // Date range filter
+        if (request('from') && request('to')) {
+            try {
+                $from = Carbon::parse(request('from'))->startOfDay()->toDateTimeString();
+                $to = Carbon::parse(request('to'))->endOfDay()->toDateTimeString();
+                $query->whereBetween('created_at', [$from, $to]);
+            } catch (\Exception $e) {
+                // ignore invalid dates
+            }
+        }
+
+        // Sorting
+        $sortBy = request('sort_by', 'created_at');
+        $order = request('order', 'desc') === 'asc' ? 'asc' : 'desc';
+
+        if ($sortBy === 'amount') {
+            $query->orderBy('amount', $order);
+        } elseif ($sortBy === 'mass') {
+            $query->orderByRaw("(select mass_title from masses where masses.mass_id = mass_offerings.mass_id) {$order}");
+        } elseif ($sortBy === 'encoder') {
+            $query->orderByRaw("(select name from users where users.id = mass_offerings.encoded_by) {$order}");
+        } else {
+            $query->orderBy('created_at', $order);
+        }
+
+        $offerings = $query->paginate(10)->withQueryString();
 
         return view('secretary.financial.offerings.index', compact('offerings'));
     }

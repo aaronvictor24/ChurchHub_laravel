@@ -1,14 +1,23 @@
 <form action="{{ $action }}" method="POST" class="space-y-12">
     @csrf
 
+    {{-- Display conflict or validation errors --}}
+    @if ($errors->any())
+        <div class="p-4 bg-red-900 border border-red-700 rounded-lg text-red-300 font-semibold">
+            @foreach ($errors->all() as $error)
+                <div>{{ $error }}</div>
+            @endforeach
+        </div>
+    @endif
+
     <div class="border-b border-white/10 pb-12">
-        <h2 class="text-base font-semibold text-white">Mass Details</h2>
+        <h2 class="text-base font-semibold text-white">Service Details</h2>
         <p class="mt-1 text-sm text-gray-400">Please fill out all the information below.</p>
 
         <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
 
             <div class="sm:col-span-3">
-                <label class="block text-sm font-medium text-white">Mass Title</label>
+                <label class="block text-sm font-medium text-white">Service Title</label>
                 <input type="text" name="mass_title" value="{{ old('mass_title', $mass->mass_title ?? '') }}"
                     class="mt-2 block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white
                     outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500
